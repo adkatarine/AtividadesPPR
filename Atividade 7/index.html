@@ -1,0 +1,80 @@
+<html>
+    <head>
+        <title>Index</title>
+        <meta charset="utf-8">
+        <script>
+
+        function getJson() {
+            var url = "https://8klio9atoh.execute-api.us-west-2.amazonaws.com/default/Contatos";
+            var ajax;
+            if (window.XMLHttpRequest){
+                ajax = new XMLHttpRequest();//para Chrome, mozilla etc
+            } else if(window.ActiveXObject){
+                ajax = new ActiveXObject("Microsoft.XMLHTTP");//para IE apenas
+            }
+            ajax.onreadystatechange = function(){
+                if (ajax.readyState == 4 ){
+                    var jsonObjAux = JSON.parse(ajax.responseText);//JSON.parse()
+                    nomeBusca = document.busca.buscar.value;
+                    document.getElementById("resultado").innerHTML = "";
+                    for(dado in jsonObjAux.contatos){
+                        if(jsonObjAux.contatos[dado].name.includes(nomeBusca) || jsonObjAux.contatos[dado].email.includes(nomeBusca)){
+                            var aux = "Nome: " + jsonObjAux.contatos[dado].name + " - Email: " + jsonObjAux.contatos[dado].email + "<br>";
+                            document.getElementById("resultado").innerHTML += aux;
+                        }
+                    } if(document.getElementById("resultado").innerText.trim() == ""){
+                        document.getElementById("resultado").innerHTML += "Este contato não existe!";
+                    }
+                }
+            }
+            ajax.open("GET", url, true);
+            ajax.send();
+        }
+
+        function putJson(){
+            var url = "https://8klio9atoh.execute-api.us-west-2.amazonaws.com/default/Contatos";
+
+            var data = {};
+            data.name = document.inserir.nome.value;
+            data.email  = document.inserir.email.value;
+            var json = JSON.stringify(data);
+
+            var xhr = new XMLHttpRequest();
+            xhr.onload = function () {
+                var users = JSON.parse(xhr.responseText);
+                if (xhr.readyState == 4 && xhr.status == "200") {
+                    console.table(users);
+                } else {
+                    console.error(users);
+                }
+            }
+            xhr.open("PUT", url, true);
+            xhr.send(json);
+        }
+
+        </script>
+    </head>
+
+    <body align = "center">
+        <h2>Formulário Usando JavaScript</h2>
+
+        <h3>Cadastro</h3>
+        <form method="PUT" name="inserir">
+            Nome:
+            <input type="text" name="nome"><br> <br>
+            Email:
+            <input type="text" name="email"><br> <br>
+            <button type="button" onclick="putJson()">Cadastrar</button> 
+        </form>
+
+        <h3>Busca</h3>
+        <form method="GET" name="busca">
+            Buscar Contato:
+            <input type="text" name="buscar"><br> <br>
+            <button type="button" onclick="getJson()">Buscar</button> 
+        </form>
+
+        <div id="resultado"></div>
+
+    </body>
+</html>
